@@ -3,7 +3,7 @@ const path = require("path");
 
 const contactsPath = path.resolve("models/contacts.json");
 
-const readContacts = async () => {
+const listContacts = async () => {
   try {
     const contactsList = await fs.readFile(contactsPath, "utf8");
     const contacts = JSON.parse(contactsList);
@@ -13,9 +13,9 @@ const readContacts = async () => {
   }
 };
 
-const getContactById = async (contactId) => {
+const getById = async (contactId) => {
   try {
-    const list = await readContacts();
+    const list = await listContacts();
     const findContact = list.find((e) => e.id === contactId);
     return findContact;
   } catch (error) {
@@ -25,12 +25,12 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const list = await readContacts();
+    const list = await listContacts();
     const findContact = list.find((e) => e.id === contactId);
     if (!findContact) {
-      return null;
+      return undefined;
     }
-    const newContacts = list.filter((item) => item.id !== contactId);
+    const newContacts = list.filter((e) => e.id !== contactId);
     await fs.writeFile(contactsPath, JSON.stringify(newContacts));
     return findContact;
   } catch (error) {
@@ -47,7 +47,7 @@ const addContact = async (body) => {
       email,
       phone,
     };
-    const list = await readContacts();
+    const list = await listContacts();
     const newContacts = [...list, contact];
     await fs.writeFile(contactsPath, JSON.stringify(newContacts));
     return contact;
@@ -59,7 +59,7 @@ const addContact = async (body) => {
 const updateContact = async (contactId, body) => {
   try {
     const { name, email, phone } = body;
-    const list = await readContacts();
+    const list = await listContacts();
     const [contact] = list.filter((e) => e.id === contactId);
     contact.name = name;
     contact.email = email;
@@ -73,8 +73,8 @@ const updateContact = async (contactId, body) => {
 };
 
 module.exports = {
-  readContacts,
-  getContactById,
+  listContacts,
+  getById,
   removeContact,
   addContact,
   updateContact,
