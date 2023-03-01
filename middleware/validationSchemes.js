@@ -9,15 +9,25 @@ const addContactSchema = Joi.object({
     })
     .required(),
   phone: Joi.string().min(10).max(14),
+  favorite: Joi.boolean(),
 });
 
 const changeContactSchema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
+  name: Joi.string().min(3).max(30),
   email: Joi.string().email({
     minDomainSegments: 2,
     tlds: { allow: ["com", "net"] },
   }),
   phone: Joi.string().min(10).max(14),
+  favorite: Joi.boolean(),
 });
 
-module.exports = { addContactSchema, changeContactSchema };
+const updateStatusContactSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
+module.exports = {
+  addContactSchema,
+  changeContactSchema,
+  updateStatusContactSchema,
+};
