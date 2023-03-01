@@ -3,9 +3,7 @@ const { httpError } = require("../helpers");
 
 const getAllContacts = async (_, res) => {
   const contacts = await Contact.find({});
-  return res.status(200).json({
-    message: contacts,
-  });
+  return res.status(200).json({message: contacts,});
 };
 
 const getContactByID = async (req, res, next) => {
