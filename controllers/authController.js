@@ -86,7 +86,7 @@ const userCurrent = async (req, res, next) => {
 };
 
 
-const userChangeAvatar = async (req, res, next) => {
+const userChangeAvatar = async (req, res) => {
   const { user, file } = req;
   file.name = user._id + ".jpeg";
   const img = await jimp.read(file.path);
