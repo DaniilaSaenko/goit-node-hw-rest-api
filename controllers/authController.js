@@ -1,6 +1,10 @@
 const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const jimp = require("jimp");
+const path = require("path");
+const fs = require("fs/promises");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -8,9 +12,9 @@ const { KEY_SECRET } = process.env;
 
 const userSignup = async (req, res, next) => {
   const { email, password } = req.body;
-
+  const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "404" });
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ email, password: hashedPassword });
+  const user = new User({ email, password: hashedPassword, avatarURL });
 
   try {
     await user.save();
@@ -81,10 +85,29 @@ const userCurrent = async (req, res, next) => {
   return res.status(401).json({ message: "Not authorized" });
 };
 
+
+const userChangeAvatar = async (req, res, next) => {
+  const { user, file } = req;
+  file.name = user._id + ".jpeg";
+  const img = await jimp.read(file.path);
+  img.resize(250, 250);
+  await img.writeAsync(file.path);
+  const newPath = path.join(__dirname, "../public/avatars", file.name);
+  await fs.rename(file.path, newPath);
+  user.avatarURL = "/avatars/" + file.name;
+  console.log(user);
+  await User.findByIdAndUpdate(user._id, user);
+  return res.status(201).json({
+    avatarURL: user.avatarURL,
+  });
+};
+
+
 module.exports = {
   userSignup,
   getAllUsers,
   userLogin,
   userLogout,
   userCurrent,
+  userChangeAvatar,
 };
