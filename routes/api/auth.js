@@ -23,11 +23,12 @@ authRouter.post("/login", validation(authSchema), tryCatchWrapper(userLogin));
 authRouter.get("/logout", tryCatchWrapper(auth), tryCatchWrapper(userLogout));
 authRouter.get("/current", tryCatchWrapper(auth), tryCatchWrapper(userCurrent));
 authRouter.get("/", tryCatchWrapper(getAllUsers));
-authRouter.post(
+authRouter.patch(
   "/avatars",
   tryCatchWrapper(auth),
   tryCatchWrapper(upload.single("avatar")),
   tryCatchWrapper(userChangeAvatar)
 );
+
 
 module.exports = authRouter;

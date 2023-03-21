@@ -1,4 +1,6 @@
 const { User } = require("../models/user");
+
+const { httpError } = require("../helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
@@ -12,7 +14,7 @@ const { KEY_SECRET } = process.env;
 
 const userSignup = async (req, res, next) => {
   const { email, password } = req.body;
-  const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "404" });
+  const avatarURL = gravatar.url(email);
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({ email, password: hashedPassword, avatarURL });
 
@@ -85,20 +87,26 @@ const userCurrent = async (req, res, next) => {
   return res.status(401).json({ message: "Not authorized" });
 };
 
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 const userChangeAvatar = async (req, res) => {
-  const { user, file } = req;
-  file.name = user._id + ".jpeg";
-  const img = await jimp.read(file.path);
-  img.resize(250, 250);
-  await img.writeAsync(file.path);
-  const newPath = path.join(__dirname, "../public/avatars", file.name);
-  await fs.rename(file.path, newPath);
-  user.avatarURL = "/avatars/" + file.name;
-  console.log(user);
-  await User.findByIdAndUpdate(user._id, user);
-  return res.status(201).json({
-    avatarURL: user.avatarURL,
+  const { _id } = req.user;
+  const { path: tempUpload, originalname } = req.file;
+
+  try {
+    const avatarImg = await jimp.read(tempUpload);
+    avatarImg.resize(250, 250).writeAsync(tempUpload);
+  } catch (err) {
+    throw httpError(500);
+  }
+
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarDir, fileName);
+  const avatarURL = path.join("avatars", fileName);
+  await fs.rename(tempUpload, resultUpload);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+  res.json({
+    avatarURL,
   });
 };
 
