@@ -10,8 +10,7 @@ const auth = async (req, res, next) => {
   const [tokenType, token] = authHeader.split(" ");
   if (tokenType === "Bearer" && token) {
     const verifiedToken = jwt.verify(token, KEY_SECRET);
-    const user = await User.findById(verifiedToken._id);
-
+    const user = await User.findById(verifiedToken.id);
     if (!user || !user.token) {
       return res.status(401).json({ message: "Not authorized" });
     }
