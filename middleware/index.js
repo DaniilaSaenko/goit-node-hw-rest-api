@@ -1,9 +1,9 @@
-const validation = require("./validationBody");
+const validateBody = require("./validateBody");
 const auth = require("./auth");
 const upload = require("./upload");
 
 module.exports = {
-  validation,
+  validateBody,
   auth,
   upload,
 };

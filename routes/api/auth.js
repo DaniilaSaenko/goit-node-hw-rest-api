@@ -1,34 +1,36 @@
 const express = require("express");
 
-const authRouter = express.Router();
+const ctrl = require("../../controllers/authController");
 
 const {
-  userSignup,
-  getAllUsers,
-  userLogin,
-  userLogout,
-  userCurrent,
-  userChangeAvatar,
-} = require("../../controllers/authController");
-
-const { tryCatchWrapper } = require("../../helpers");
-
-const { authSchema } = require("../../middleware/validationSchemes");
-const { validation } = require("../../middleware/validationBody");
+  authSchema,
+  emailSchema,
+} = require("../../middleware/validationSchemes");
 const { auth } = require("../../middleware/auth");
 const { upload } = require("../../middleware/upload");
+const validateBody = require("../../middleware/validateBody");
 
-authRouter.post("/singup", validation(authSchema), tryCatchWrapper(userSignup));
-authRouter.post("/login", validation(authSchema), tryCatchWrapper(userLogin));
-authRouter.get("/logout", tryCatchWrapper(auth), tryCatchWrapper(userLogout));
-authRouter.get("/current", tryCatchWrapper(auth), tryCatchWrapper(userCurrent));
-authRouter.get("/", tryCatchWrapper(getAllUsers));
-authRouter.patch(
+const router = express.Router();
+
+// signup
+
+router.post("/singup", validateBody(authSchema), ctrl.userSignup);
+
+router.get("/verify/:verificationToken", ctrl.verifyEmail);
+
+router.post("/verify", validateBody(emailSchema), ctrl.resendVerifyEmail);
+
+// signin
+
+router.post("/login", validateBody(authSchema), ctrl.userLogin);
+router.get("/logout", auth, ctrl.userLogout);
+router.get("/current", auth, ctrl.userCurrent);
+router.patch(
   "/avatars",
-  tryCatchWrapper(auth),
-  tryCatchWrapper(upload.single("avatar")),
-  tryCatchWrapper(userChangeAvatar)
+  auth,
+  upload.single("avatar"),
+  ctrl.userChangeAvatar
 );
 
 
-module.exports = authRouter;
+module.exports = router;
