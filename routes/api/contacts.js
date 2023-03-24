@@ -15,7 +15,7 @@ const {
   changeContactSchema,
   updateStatusContactSchema,
 } = require("../../middleware/validationSchemes");
-const { validation } = require("../../middleware/validationBody");
+const validateBody = require("../../middleware/validateBody");
 const { auth } = require("../../middleware/auth");
 
 
@@ -32,7 +32,7 @@ router.get(
 router.post(
   "/",
   tryCatchWrapper(auth),
-  validation(addContactSchema),
+  validateBody(addContactSchema),
   tryCatchWrapper(addContact)
 );
 
@@ -41,14 +41,14 @@ router.delete("/:contactId", tryCatchWrapper(auth), tryCatchWrapper(removeContac
 router.put(
   "/:contactId",
   tryCatchWrapper(auth),
-  validation(changeContactSchema),
+  validateBody(changeContactSchema),
   tryCatchWrapper(updateContact)
 );
 
 router.put(
   "/:contactId/favorite",
   tryCatchWrapper(auth),
-  validation(updateStatusContactSchema),
+  validateBody(updateStatusContactSchema),
   tryCatchWrapper(updateContactStatus)
 );
 
